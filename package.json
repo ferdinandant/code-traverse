@@ -16,9 +16,10 @@
   "scripts": {
     "dev": "ts-node -T -O '{\"module\": \"commonjs\"}' src/run.ts",
     "start": "tsdx watch",
-    "build": "tsdx build",
+    "build": "tsdx build --transpileOnly",
     "test": "jest",
     "lint": "tsdx lint",
+    "tsc": "tsc",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
