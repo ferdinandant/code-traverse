@@ -19,15 +19,18 @@ export default async function main(rawConfig: Config) {
   for (const chunkName in entries) {
     const entryFiles = entries[chunkName];
     for (const entryFile of entryFiles) {
-      const sourceFile = null;
       const targetFile = entryFile;
       await visitFile({
         state,
         userState,
         config,
-        sourceFile,
         targetFile,
       });
     }
+  }
+
+  // Done
+  if (config.onDone) {
+    config.onDone({ userState, libState: state });
   }
 }
