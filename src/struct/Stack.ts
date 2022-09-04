@@ -7,7 +7,7 @@ export class Stack<T extends string | number> {
     this.valueCount = Object.create(null);
   }
 
-  get size() {
+  getSize() {
     return this.arr.length;
   }
 
