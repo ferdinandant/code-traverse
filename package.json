@@ -15,7 +15,7 @@
   },
   "scripts": {
     "dev": "ts-node -T -O '{\"module\": \"commonjs\"}' src/run.ts",
-    "start": "tsdx watch",
+    "watch": "tsdx watch --transpileOnly",
     "build": "tsdx build --transpileOnly",
     "test": "jest",
     "lint": "tsdx lint",
