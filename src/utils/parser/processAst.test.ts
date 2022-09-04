@@ -9,7 +9,7 @@ describe('processAst', () => {
     it('detects imports correctly', async () => {
       const targetFile = path.join(
         REPO_ROOT,
-        './fixtures/esm/import-export.ts'
+        './fixtures/parsing/esm/import-export.ts'
       );
       const codeStr = await fs.promises.readFile(targetFile, 'utf8');
       const ast = parseToAst({ targetFile, codeStr });
@@ -18,7 +18,10 @@ describe('processAst', () => {
     });
 
     it('detects exports correctly', async () => {
-      const targetFile = path.join(REPO_ROOT, './fixtures/esm/export.ts');
+      const targetFile = path.join(
+        REPO_ROOT,
+        './fixtures/parsing/esm/export.ts'
+      );
       const codeStr = await fs.promises.readFile(targetFile, 'utf8');
       const ast = parseToAst({ targetFile, codeStr });
       const result = processAst({ ast });
@@ -26,7 +29,10 @@ describe('processAst', () => {
     });
 
     it('detects exports-all correctly', async () => {
-      const targetFile = path.join(REPO_ROOT, './fixtures/esm/export-all.ts');
+      const targetFile = path.join(
+        REPO_ROOT,
+        './fixtures/parsing/esm/export-all.ts'
+      );
       const codeStr = await fs.promises.readFile(targetFile, 'utf8');
       const ast = parseToAst({ targetFile, codeStr });
       const result = processAst({ ast });
@@ -36,7 +42,10 @@ describe('processAst', () => {
 
   describe('with require', () => {
     it('detects imports correctly', async () => {
-      const targetFile = path.join(REPO_ROOT, './fixtures/require/require.ts');
+      const targetFile = path.join(
+        REPO_ROOT,
+        './fixtures/parsing/require/require.ts'
+      );
       const codeStr = await fs.promises.readFile(targetFile, 'utf8');
       const ast = parseToAst({ targetFile, codeStr });
       const result = processAst({ ast });
@@ -44,7 +53,10 @@ describe('processAst', () => {
     });
 
     it('detects exports correctly', async () => {
-      const targetFile = path.join(REPO_ROOT, './fixtures/require/exports.ts');
+      const targetFile = path.join(
+        REPO_ROOT,
+        './fixtures/parsing/require/exports.ts'
+      );
       const codeStr = await fs.promises.readFile(targetFile, 'utf8');
       const ast = parseToAst({ targetFile, codeStr });
       const result = processAst({ ast });
@@ -56,7 +68,7 @@ describe('processAst', () => {
     it('detects imports correctly', async () => {
       const targetFile = path.join(
         REPO_ROOT,
-        './fixtures/import/dynamic-import.ts'
+        './fixtures/parsing/import/dynamic-import.ts'
       );
       const codeStr = await fs.promises.readFile(targetFile, 'utf8');
       const ast = parseToAst({ targetFile, codeStr });
