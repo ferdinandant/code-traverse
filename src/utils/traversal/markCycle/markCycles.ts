@@ -1,4 +1,9 @@
-import { Stack } from '../../struct/Stack';
+import { Stack } from '../../../struct/Stack';
+import { getFileChildren } from '../utils/getFileChildren';
+
+// ================================================================================
+// TYPES/CONST
+// ================================================================================
 
 type Opts = {
   state: State;
@@ -7,6 +12,10 @@ type Opts = {
 let nextFileId: number;
 let isFileVisited: Record<string, boolean>;
 let stack: Stack<string>;
+
+// ================================================================================
+// MAIN
+// ================================================================================
 
 export function markCycles({ state }: Opts) {
   // Reset state
@@ -23,6 +32,10 @@ export function markCycles({ state }: Opts) {
   });
 }
 
+// ================================================================================
+// HELPERS
+// ================================================================================
+
 /**
  * Tarjan's DFS algorithm to find strongly-connected components (cycles)
  * https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
@@ -34,7 +47,7 @@ function connect(state: State, file: string) {
   state.fileToLowLinkId[file] = state.fileToId[file];
   stack.push(file);
   // Recursively visit children
-  const childrenFiles = getChildren(state, file);
+  const childrenFiles = getFileChildren(state, file);
   childrenFiles.forEach(childrenFile => {
     if (!isFileVisited[childrenFile]) {
       // Traverse successors with this node as "root"
@@ -57,12 +70,6 @@ function connect(state: State, file: string) {
   if (state.fileToLowLinkId[file] === state.fileToId[file]) {
     markCycleComponentsFromRoot(state, file);
   }
-}
-
-function getChildren(state: State, file: string) {
-  const { fileToParseResult } = state;
-  const { moduleImports } = fileToParseResult[file];
-  return Object.keys(moduleImports);
 }
 
 function markCycleComponentsFromRoot(state: State, rootFile: string) {

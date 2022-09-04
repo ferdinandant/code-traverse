@@ -4,6 +4,10 @@ type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT;
 // STATE
 // ================================================================================
 
+type CycleData = {
+  children: Set<string>;
+};
+
 type State = {
   // --- resolve config ---
   packageNameToBasePath: Record<string, string>;
@@ -19,6 +23,7 @@ type State = {
   fileToLowLinkId: Record<string, number>;
   fileToCycleRootId: Record<string, number>;
   fileToIsInCycle: Record<string, boolean>;
+  cycleRootIdToCycleData: Record<number, CycleData>;
 };
 
 // ================================================================================

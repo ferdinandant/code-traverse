@@ -14,6 +14,7 @@ export function getEmptyState(overrides: any = {}): State {
     fileToLowLinkId: Object.create(null),
     fileToCycleRootId: Object.create(null),
     fileToIsInCycle: Object.create(null),
+    cycleRootIdToCycleData: Object.create(null),
   };
 
   return {
