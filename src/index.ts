@@ -2,7 +2,7 @@ import { parseConfig } from './utils/config/parseConfig';
 import { getEmptyState } from './utils/state/getEmptyState';
 import { parseAllPackageJson } from './utils/init/parseAllPackageJson';
 import { visitFile } from './utils/traversal/visitFile';
-import { markCycles } from './utils/traversal/markCycles';
+import { markCycles } from './utils/traversal/cycle/markCycles';
 
 export { saveState } from './helpers/state/saveState';
 export { loadState } from './helpers/state/loadState';
