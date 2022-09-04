@@ -24,9 +24,7 @@ export async function visitFile({
   if (debug) {
     console.log(`[visit] ${targetFile}`);
   }
-  const {
-    tmp: { fileToIsVisited },
-  } = stateWithTmp;
+  const { fileToIsVisited } = stateWithTmp.tmp;
   fileToIsVisited[targetFile] = true;
 
   // Check if the file needs to be handled

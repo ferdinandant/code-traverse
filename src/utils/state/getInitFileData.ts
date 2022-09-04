@@ -9,6 +9,6 @@ export function getInitFileData(): FileStateData {
     exportMap: Object.create(null),
     // --- cycle ---
     isInCycle: false,
-    fileToCycleRootId: -1,
+    cycleRootId: -1,
   };
 }

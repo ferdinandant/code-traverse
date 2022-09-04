@@ -30,7 +30,7 @@ type FileTraversalData = {
 };
 type FileCycleData = {
   isInCycle: boolean;
-  fileToCycleRootId: number;
+  cycleRootId: number;
 };
 type FileStateData = FileTraversalData & FileParseData & FileCycleData;
 
