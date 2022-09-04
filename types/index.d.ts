@@ -1,5 +1,14 @@
 type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT;
 
+/**
+ * Absolute path to a file
+ */
+type ResolvedPath = string;
+
+type ImportedName = string;
+type ExportedName = string;
+type LocalName = string;
+
 // ================================================================================
 // STATE
 // ================================================================================
@@ -9,22 +18,46 @@ type CycleData = {
   children: Set<string>;
 };
 
+/**
+ * null means the export depends on the current file
+ */
+type ResolvedExport = { from };
+type ResolvedExports = Record<ExportedName, ResolvedExport>;
+
+type FileParseData = ResolvedParseResult;
+type FileCycleData = {
+  isInCycle: boolean;
+  fileToCycleRootId: number;
+};
+type FileStateData = FileParseData & FileCycleData;
+
 type State = {
-  // --- resolve config ---
   packageNameToBasePath: Record<string, string>;
   externals: Set<string>;
-  // --- file states ---
-  fileToIsVisited: Record<string, boolean>;
-  fileToParseResult: Record<string, ResolvedParseResult>;
-  fileToRecursiveExternalDependencies: Record<string, Set<string>>;
-  fileToRecursiveDependencies: Record<string, Set<string>>;
-  fileToParents: Record<string, Set<string>>;
-  // --- cycle data ---
-  fileToId: Record<string, number>;
-  fileToLowLinkId: Record<string, number>;
-  fileToCycleRootId: Record<string, number>;
-  fileToIsInCycle: Record<string, boolean>;
+  fileData: Record<ResolvedPath, FileStateData>;
   cycleRootIdToCycleData: Record<number, CycleData>;
+  tmp?: unknown;
+};
+
+type StateWithVisitTmp = State & {
+  tmp: {
+    fileToIsVisited: Record<ResolvedPath, boolean>;
+  };
+};
+
+type StateWithCycleTmp = State & {
+  tmp: {
+    nextFileId: number;
+    stack: Stack<string>;
+    fileToIsVisited: Record<ResolvedPath, boolean>;
+    fileToCycleData: Record<
+      ResolvedPath,
+      {
+        id: number;
+        lowLinkId: number;
+      }
+    >;
+  };
 };
 
 // ================================================================================
@@ -42,9 +75,6 @@ type TopLevelDeclaration = Record<
   }
 >;
 
-type ImportedName = string;
-type ExportedName = string;
-type LocalName = string;
 type ImportSpec = {
   importFrom: string;
   name: ImportedName;
@@ -81,8 +111,6 @@ type ExportMap = Record<
 // ================================================================================
 // RESOLVE
 // ================================================================================
-
-type ResolvedPath = string;
 
 type ResolveFn = (context: string, request: string) => Promise<ResolvedRequest>;
 
