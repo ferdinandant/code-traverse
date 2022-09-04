@@ -4,17 +4,27 @@ type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT;
 // STATE
 // ================================================================================
 
+type CycleData = {
+  members: Set<string>;
+  children: Set<string>;
+};
+
 type State = {
   // --- resolve config ---
   packageNameToBasePath: Record<string, string>;
   externals: Set<string>;
   // --- file states ---
-  entryFiles: Set<>;
   fileToIsVisited: Record<string, boolean>;
   fileToParseResult: Record<string, ResolvedParseResult>;
   fileToRecursiveExternalDependencies: Record<string, Set<string>>;
   fileToRecursiveDependencies: Record<string, Set<string>>;
   fileToParents: Record<string, Set<string>>;
+  // --- cycle data ---
+  fileToId: Record<string, number>;
+  fileToLowLinkId: Record<string, number>;
+  fileToCycleRootId: Record<string, number>;
+  fileToIsInCycle: Record<string, boolean>;
+  cycleRootIdToCycleData: Record<number, CycleData>;
 };
 
 // ================================================================================
@@ -153,7 +163,7 @@ type Config = {
   extensions?: string[];
   includes?: Glob[];
   excludes?: Glob[];
-  debug: boolean;
+  debug?: boolean;
   onAfterInitialization?: OnAfterInitializationFn;
   onAfterParse?: OnAfterParseFn;
   onDone?: OnDoneFn;
