@@ -1,7 +1,8 @@
 import { parseConfig } from './utils/config/parseConfig';
 import { getEmptyState } from './utils/state/getEmptyState';
 import { parseAllPackageJson } from './utils/init/parseAllPackageJson';
-import { visitFile } from './utils/traversal/traverse';
+import { visitFile } from './utils/traversal/visitFile';
+import { markCycles } from './utils/traversal/markCycles';
 
 export { saveState } from './helpers/state/saveState';
 export { loadState } from './helpers/state/loadState';
@@ -31,6 +32,8 @@ export default async function main(rawConfig: Config) {
       });
     }
   }
+  // Detect cycles
+  markCycles({ state });
 
   // Done
   if (config.onDone) {

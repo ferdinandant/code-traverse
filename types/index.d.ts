@@ -9,12 +9,16 @@ type State = {
   packageNameToBasePath: Record<string, string>;
   externals: Set<string>;
   // --- file states ---
-  entryFiles: Set<>;
   fileToIsVisited: Record<string, boolean>;
   fileToParseResult: Record<string, ResolvedParseResult>;
   fileToRecursiveExternalDependencies: Record<string, Set<string>>;
   fileToRecursiveDependencies: Record<string, Set<string>>;
   fileToParents: Record<string, Set<string>>;
+  // --- cycle data ---
+  fileToId: Record<string, number>;
+  fileToLowLinkId: Record<string, number>;
+  fileToCycleRootId: Record<string, number>;
+  fileToIsInCycle: Record<string, boolean>;
 };
 
 // ================================================================================
@@ -153,7 +157,7 @@ type Config = {
   extensions?: string[];
   includes?: Glob[];
   excludes?: Glob[];
-  debug: boolean;
+  debug?: boolean;
   onAfterInitialization?: OnAfterInitializationFn;
   onAfterParse?: OnAfterParseFn;
   onDone?: OnDoneFn;
