@@ -1,5 +1,4 @@
 export function getFileChildren(state: State, file: string) {
-  const { fileToParseResult } = state;
-  const { moduleImports } = fileToParseResult[file];
+  const { moduleImports } = state.fileData[file];
   return Object.keys(moduleImports);
 }

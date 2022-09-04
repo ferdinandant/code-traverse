@@ -1,5 +1,7 @@
 import path from 'path';
+import { getInitFileData } from '../state/getInitFileData';
 import { processFile } from './process/processFile';
+
 type Opts = {
   state: State;
   userState: any;
@@ -15,13 +17,14 @@ export async function visitFile({
   targetFile,
 }: Opts) {
   const { debug } = config;
+  const stateWithTmp = state as StateWithVisitTmp;
   if (!targetFile.startsWith('/')) {
     throw new Error(`Expects file to be an absolute path: ${targetFile}`);
   }
   if (debug) {
     console.log(`[visit] ${targetFile}`);
   }
-  const { fileToIsVisited } = state;
+  const { fileToIsVisited } = stateWithTmp.tmp;
   fileToIsVisited[targetFile] = true;
 
   // Check if the file needs to be handled
@@ -42,22 +45,22 @@ export async function visitFile({
   }
 
   // Open file and parse the file
-  const { fileToParseResult, fileToParents } = state;
+  const { fileData } = state;
   const resolvedParseResult = await processFile({
     state,
     userState,
     config,
     targetFile,
   });
-  fileToParseResult[targetFile] = resolvedParseResult;
+  if (!fileData[targetFile]) {
+    fileData[targetFile] = getInitFileData();
+  }
+  Object.assign(fileData[targetFile], resolvedParseResult);
 
   const children = Object.keys(resolvedParseResult.moduleImports);
   for (const childFile of children) {
     // Register parent
-    if (!fileToParents[childFile]) {
-      fileToParents[childFile] = new Set<string>();
-    }
-    fileToParents[childFile].add(targetFile);
+    fileData[targetFile].parents.add(targetFile);
     // Mark visit
     if (!fileToIsVisited[childFile]) {
       fileToIsVisited[childFile] = true;
