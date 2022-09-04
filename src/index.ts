@@ -3,6 +3,9 @@ import { getEmptyState } from './utils/state/getEmptyState';
 import { parseAllPackageJson } from './utils/init/parseAllPackageJson';
 import { visitFile } from './utils/traversal/traverse';
 
+export { saveState } from './helpers/state/saveState';
+export { loadState } from './helpers/state/loadState';
+
 export default async function main(rawConfig: Config) {
   const config = parseConfig(rawConfig);
   const userState = {} as any;
