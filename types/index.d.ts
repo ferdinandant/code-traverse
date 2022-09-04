@@ -25,11 +25,14 @@ type ResolvedExport = { from };
 type ResolvedExports = Record<ExportedName, ResolvedExport>;
 
 type FileParseData = ResolvedParseResult;
+type FileTraversalData = {
+  parents: Set<string>;
+};
 type FileCycleData = {
   isInCycle: boolean;
   fileToCycleRootId: number;
 };
-type FileStateData = FileParseData & FileCycleData;
+type FileStateData = FileTraversalData & FileParseData & FileCycleData;
 
 type State = {
   packageNameToBasePath: Record<string, string>;
