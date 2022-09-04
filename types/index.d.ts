@@ -5,6 +5,7 @@ type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT;
 // ================================================================================
 
 type CycleData = {
+  members: Set<string>;
   children: Set<string>;
 };
 

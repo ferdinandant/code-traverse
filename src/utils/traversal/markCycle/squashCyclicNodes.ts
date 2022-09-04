@@ -19,6 +19,7 @@ export function squashCyclicNodes({ state }: Opts) {
     }
     const cycleRootId = state.fileToCycleRootId[file];
     const cycleChildren = new Set<string>();
+    const cycleMembers = new Set<string>();
     const queue: string[] = [file];
 
     // BFS to members of the cycles
@@ -26,6 +27,7 @@ export function squashCyclicNodes({ state }: Opts) {
       const currentFile = queue.shift()!;
       const fileChildren = getFileChildren(state, currentFile);
       visitedFiles.add(currentFile);
+      cycleMembers.add(currentFile);
       // Only add to `cycleChildren` files that are NOT part of the cycle
       // If it's member of the same cyle, push to queue to visit next
       fileChildren.forEach(childFile => {
@@ -44,6 +46,7 @@ export function squashCyclicNodes({ state }: Opts) {
     // Register to state
     state.cycleRootIdToCycleData[cycleRootId] = {
       children: cycleChildren,
+      members: cycleMembers,
     };
   });
 }
