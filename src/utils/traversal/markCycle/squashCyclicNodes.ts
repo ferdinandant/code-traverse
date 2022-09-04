@@ -12,12 +12,12 @@ export function squashCyclicNodes({ state }: Opts) {
   const visitedFiles = new Set<string>();
 
   // Sort for visit order consistency
-  const filesInCycle = Object.keys(state.fileToIsInCycle).sort();
+  const filesInCycle = Object.keys(state.fileData).sort();
   filesInCycle.forEach(file => {
     if (visitedFiles.has(file)) {
       return;
     }
-    const cycleRootId = state.fileToCycleRootId[file];
+    const { cycleRootId } = state.fileData[file];
     const cycleChildren = new Set<string>();
     const cycleMembers = new Set<string>();
     const queue: string[] = [file];
@@ -31,13 +31,11 @@ export function squashCyclicNodes({ state }: Opts) {
       // Only add to `cycleChildren` files that are NOT part of the cycle
       // If it's member of the same cyle, push to queue to visit next
       fileChildren.forEach(childFile => {
-        if (state.fileToCycleRootId[childFile] !== cycleRootId) {
+        const { cycleRootId: childCycleRootId } = state.fileData[childFile];
+        if (childCycleRootId !== cycleRootId) {
           cycleChildren.add(childFile);
         }
-        if (
-          !visitedFiles.has(childFile) &&
-          state.fileToCycleRootId[childFile] === cycleRootId
-        ) {
+        if (!visitedFiles.has(childFile) && childCycleRootId === cycleRootId) {
           queue.push(childFile);
         }
       });
