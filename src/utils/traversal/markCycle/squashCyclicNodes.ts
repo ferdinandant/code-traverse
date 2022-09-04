@@ -12,7 +12,9 @@ export function squashCyclicNodes({ state }: Opts) {
   const visitedFiles = new Set<string>();
 
   // Sort for visit order consistency
-  const filesInCycle = Object.keys(state.fileData).sort();
+  const filesInCycle = Object.keys(state.fileData)
+    .filter(file => state.fileData[file].isInCycle)
+    .sort();
   filesInCycle.forEach(file => {
     if (visitedFiles.has(file)) {
       return;
