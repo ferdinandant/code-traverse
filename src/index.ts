@@ -8,7 +8,7 @@ import { parseAllPackageJson } from './utils/init/parseAllPackageJson';
 import { visitFile } from './utils/traversal/visitFile';
 import { markCycles } from './utils/traversal/markCycle/markCycles';
 import { squashCyclicNodes } from './utils/traversal/markCycle/squashCyclicNodes';
-import { resolveExportNames } from './utils/traversal/resolveExport/resolveExportNames';
+import { resolveReexportNames } from './utils/traversal/resolveExport/resolveReexportNames';
 
 // ================================================================================
 // MAIN
@@ -58,8 +58,8 @@ export default async function main(rawConfig: Config) {
   squashCyclicNodes({ state });
   delete state.tmp;
 
-  // Resolve export names
-  resolveExportNames({ state });
+  // Resolve reexport names
+  resolveReexportNames({ state });
 
   // --------------------------------------------------------------------------------
   // Done

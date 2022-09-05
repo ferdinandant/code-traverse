@@ -7,6 +7,7 @@ export function getInitFileData(): FileStateData {
     externalImports: Object.create(null),
     moduleImports: Object.create(null),
     exportMap: Object.create(null),
+    reexportMap: Object.create(null),
     // --- cycle ---
     isInCycle: false,
     cycleRootId: -1,

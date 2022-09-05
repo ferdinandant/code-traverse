@@ -18,13 +18,17 @@ type CycleData = {
   children: Set<string>;
 };
 
+type ReexportMap = Record<ExportedName, { file: string }>;
+
 /**
  * null means the export depends on the current file
  */
 type ResolvedExport = { from };
 type ResolvedExports = Record<ExportedName, ResolvedExport>;
 
-type FileParseData = ResolvedParseResult;
+type FileParseData = ResolvedParseResult & {
+  reexportMap: ReexportMap;
+};
 type FileTraversalData = {
   parents: Set<string>;
 };
