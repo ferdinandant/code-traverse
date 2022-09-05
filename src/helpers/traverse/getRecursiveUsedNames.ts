@@ -63,11 +63,13 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
           exportNameDependencies.add(dep);
         });
       });
-      // For each name in `exportNameDependencies`,
-      // possibly it imports from other file
+      // Process dependencies of `name`
       exportNameDependencies.forEach(topLevelName => {
         const matchingImport = getMatchingImportForName(file, topLevelName);
         if (matchingImport) {
+          // Traverse referenced import
+          // We don't mark `topLevelName` as used here
+          // (it will be added as used by the children file)
           const { file: importedFile, name: importedName } = matchingImport;
           const recursiveDependencies = getRecursiveDependencies(
             importedFile,
@@ -76,6 +78,10 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
           recursiveDependencies.forEach(cacheKey => {
             allRecursiveNames.add(cacheKey);
           });
+        } else {
+          // Mark the current name as used
+          const cacheKey = encodeToCacheKey({ file, name: topLevelName });
+          allRecursiveNames.add(cacheKey);
         }
       });
       return (cacheKeyToRecursiveNames[cacheKey] = allRecursiveNames);

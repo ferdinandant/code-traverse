@@ -15,6 +15,7 @@ test('using simple-case mock repo', async () => {
       Object.entries(entries).forEach(([entryName, entryFiles]) => {
         const entryFile = entryFiles[0];
         const usedNames = getRecursiveUsedNames(state, entryFile);
+        console.log(usedNames);
       });
     },
   };
