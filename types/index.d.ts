@@ -18,6 +18,10 @@ type CycleData = {
   children: Set<string>;
 };
 
+/**
+ * Contains exports exported via `export * from <...>`.
+ * Note: may want to combine data from `export {...} from <...>` here
+ */
 type ReexportMap = Record<ExportedName, { file: string }>;
 
 /**
@@ -110,6 +114,7 @@ type ReexportImportSpec = {
 type ExportMap = Record<
   ExportedName,
   {
+    isReexport: boolean;
     dependencies: Set<LocalName>;
     locs: SourceLocation[];
   }

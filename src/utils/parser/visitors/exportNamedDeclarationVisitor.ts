@@ -85,6 +85,7 @@ export function exportNamedDeclarationVisitor({
       });
       pushToExportMap(exportMap, {
         name: exportName,
+        isReexport: false,
         dependencies,
         loc,
       });
@@ -124,6 +125,7 @@ export function exportNamedDeclarationVisitor({
       const loc = specifierNode.loc!;
       pushToExportMap(exportMap, {
         name: exportName,
+        isReexport: true,
         dependencies: [],
         loc,
       });
@@ -148,6 +150,7 @@ export function exportNamedDeclarationVisitor({
           : specifierNode.exported.value;
       pushToExportMap(exportMap, {
         name: exportName,
+        isReexport: false,
         dependencies: [localName],
         loc,
       });
@@ -182,6 +185,7 @@ function handleIdentifierDeclaration({
     : [];
   pushToExportMap(exportMap, {
     name: exportName,
+    isReexport: false,
     dependencies,
     loc: exportLoc,
   });
@@ -217,11 +221,13 @@ function handleObjectPatternDeclaration({
       ];
       pushToExportMap(exportMap, {
         name: exportName,
+        isReexport: false,
         dependencies,
         loc: rightHandValueLoc,
       });
       pushToExportMap(exportMap, {
         name: exportName,
+        isReexport: false,
         dependencies,
         loc: initLoc,
       });
@@ -233,6 +239,7 @@ function handleObjectPatternDeclaration({
       const exportName = propertyNode.argument.name;
       pushToExportMap(exportMap, {
         name: exportName,
+        isReexport: false,
         dependencies: rightHandValueDeps,
         loc: rightHandValueLoc,
       });
@@ -266,6 +273,7 @@ function handleArrayPatternDeclaration({
     }
     pushToExportMap(exportMap, {
       name: exportName,
+      isReexport: false,
       dependencies: rightHandValueDeps,
       loc: rightHandValueLoc,
     });
