@@ -179,7 +179,11 @@ type StdResolve = StdResolveObj | ResolveFn;
 type Glob = string;
 
 // Default hooks
-type DefaultHookStateArg = { userState: any; libState: State };
+type DefaultHookStateArg = {
+  config: StandardizedConfig;
+  userState: any;
+  libState: State;
+};
 type OnAfterInitializationFn = (arg: DefaultHookStateArg) => any;
 type OnDoneFn = (arg: DefaultHookStateArg) => any;
 

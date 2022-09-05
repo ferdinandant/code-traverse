@@ -28,7 +28,11 @@ export default async function main(rawConfig: Config) {
   const state = getEmptyState();
   await parseAllPackageJson({ state, config });
   if (config.onAfterInitialization) {
-    config.onAfterInitialization({ userState, libState: state });
+    config.onAfterInitialization({
+      config,
+      userState,
+      libState: state,
+    });
   }
 
   // --------------------------------------------------------------------------------
@@ -66,6 +70,10 @@ export default async function main(rawConfig: Config) {
   // --------------------------------------------------------------------------------
 
   if (config.onDone) {
-    config.onDone({ userState, libState: state });
+    config.onDone({
+      config,
+      userState,
+      libState: state,
+    });
   }
 }
