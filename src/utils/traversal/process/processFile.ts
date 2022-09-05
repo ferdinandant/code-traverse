@@ -27,6 +27,7 @@ export async function processFile({
   });
   if (config.onAfterParse) {
     await config.onAfterParse({
+      config,
       libState: state,
       userState,
       file: targetFile,
