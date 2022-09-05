@@ -187,6 +187,7 @@ type OnDoneFn = (arg: DefaultHookStateArg) => any;
 type OnAfterParseArg = DefaultHookStateArg & {
   parseResult: any;
   file: string;
+  codeStr: string;
   ast: import('@babel/parser').ParseResult;
 };
 type OnAfterParseFn = (arg: OnAfterParseArg) => any;

@@ -31,6 +31,7 @@ export async function processFile({
       userState,
       file: targetFile,
       parseResult: resolvedParseResult,
+      codeStr,
       ast,
     });
   }
