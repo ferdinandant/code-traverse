@@ -22,6 +22,7 @@ export function exportDefaultDeclarationVisitor({
   });
   pushToExportMap(exportMap, {
     name: exportName,
+    isReexport: false,
     dependencies,
     loc: exportLoc,
   });
