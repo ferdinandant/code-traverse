@@ -9,8 +9,9 @@ type Opts = {
 };
 
 type AddToModuleImportsOpts = {
-  externalImports: Set<string>;
+  externalImports: ResolvedExternalImports;
   moduleImports: ResolvedModuleImports;
+  originalRequest: string;
   resolvedRequest: ResolvedRequest;
 } & (
   | {
@@ -43,7 +44,7 @@ export async function resolveParseResult({
     reexportImports,
     exportMap,
   } = parseResult;
-  const externalImports = new Set<string>();
+  const externalImports = Object.create(null);
   const moduleImports: ResolvedModuleImports = Object.create(null);
   const context = targetFile;
 
@@ -66,10 +67,11 @@ export async function resolveParseResult({
   for (const spec of anonymousImports) {
     const { importFrom: request } = spec;
     const resolvedRequest = await cachedResolveRequest(request);
-    addToModuleImports({
+    addToImportsData({
       externalImports,
       moduleImports,
       resolvedRequest,
+      originalRequest: request,
       isAnonymousImport: true,
     });
   }
@@ -82,9 +84,10 @@ export async function resolveParseResult({
       localTopLevelName: localName,
     } = spec;
     const resolvedRequest = await cachedResolveRequest(request);
-    addToModuleImports({
+    addToImportsData({
       externalImports,
       moduleImports,
+      originalRequest: request,
       resolvedRequest,
       importName,
       localName,
@@ -95,9 +98,10 @@ export async function resolveParseResult({
   for (const spec of reexportImports) {
     const { importFrom: request, importName, exportName } = spec;
     const resolvedRequest = await cachedResolveRequest(request);
-    addToModuleImports({
+    addToImportsData({
       externalImports,
       moduleImports,
+      originalRequest: request,
       resolvedRequest,
       importName,
       exportName,
@@ -111,46 +115,93 @@ export async function resolveParseResult({
 // HELPERS
 // ================================================================================
 
-function addToModuleImports({
+function addToImportsData(opts: AddToModuleImportsOpts) {
+  const {
+    externalImports,
+    moduleImports,
+    originalRequest,
+    resolvedRequest,
+  } = opts;
+  const { resolvedPath, isExternal } = resolvedRequest;
+  if (isExternal) {
+    // Handle externals
+    if (!externalImports[originalRequest]) {
+      externalImports[originalRequest] = {
+        importedNameMap: Object.create(null),
+        hasAnonymousImport: false,
+      };
+      addToExternalImportsData(opts);
+    }
+  } else {
+    // Handle user module import
+    if (!moduleImports[resolvedPath]) {
+      moduleImports[resolvedPath] = {
+        importedNameMap: Object.create(null),
+        hasAnonymousImport: false,
+      };
+    }
+    addToModuleImportsData(opts);
+  }
+}
+
+function addToExternalImportsData({
   externalImports,
+  originalRequest,
+  resolvedRequest,
+  ...nameData
+}: AddToModuleImportsOpts) {
+  if ('isAnonymousImport' in nameData) {
+    externalImports[originalRequest].hasAnonymousImport = true;
+    return;
+  }
+  // Initialize name map
+  const { importName } = nameData;
+  const { importedNameMap } = externalImports[originalRequest];
+  if (!importedNameMap[importName]) {
+    importedNameMap[importName] = {
+      localNames: [],
+      reexportNames: [],
+    };
+  }
+  // Add request data
+  if ('importName' in nameData && 'localName' in nameData) {
+    const { importName, localName } = nameData;
+    importedNameMap[importName].localNames.push(localName);
+  } else if ('importName' in nameData && 'exportName' in nameData) {
+    const { importName, exportName } = nameData;
+    importedNameMap[importName].reexportNames.push(exportName);
+  } else {
+    throw new Error('Unexpected condition in addToExternalImportsData');
+  }
+}
+
+function addToModuleImportsData({
   moduleImports,
   resolvedRequest,
   ...nameData
 }: AddToModuleImportsOpts) {
-  const { resolvedPath, isExternal } = resolvedRequest;
-  // Handle external imports
-  if (isExternal) {
-    externalImports.add(resolvedPath);
-    return;
-  }
-  // Handle user's module import
-  if (!moduleImports[resolvedPath]) {
-    moduleImports[resolvedPath] = {
-      importedNames: new Set<string>(),
-      importedNameToLocalNames: Object.create(null),
-      importedNameToReexportNames: Object.create(null),
-      hasAnonymousImport: false,
-    };
-  }
+  const { resolvedPath } = resolvedRequest;
   if ('isAnonymousImport' in nameData) {
     moduleImports[resolvedPath].hasAnonymousImport = true;
-  } else if ('importName' in nameData && 'localName' in nameData) {
+    return;
+  }
+  // Initialize name map
+  const { importName } = nameData;
+  const { importedNameMap } = moduleImports[resolvedPath];
+  if (!importedNameMap[importName]) {
+    importedNameMap[importName] = {
+      localNames: [],
+      reexportNames: [],
+    };
+  }
+  // Add request data
+  if ('importName' in nameData && 'localName' in nameData) {
     const { importName, localName } = nameData;
-    const moduleImportObj = moduleImports[resolvedPath];
-    moduleImportObj.importedNames.add(importName);
-    if (!moduleImportObj.importedNameToLocalNames[importName]) {
-      moduleImportObj.importedNameToLocalNames[importName] = [];
-    }
-    moduleImportObj.importedNameToLocalNames[importName].push(localName);
+    importedNameMap[importName].localNames.push(localName);
   } else if ('importName' in nameData && 'exportName' in nameData) {
     const { importName, exportName } = nameData;
-    const moduleImportObj = moduleImports[resolvedPath];
-    moduleImports[resolvedPath].importedNames.add(importName);
-    if (!moduleImportObj.importedNameToReexportNames[importName]) {
-      moduleImportObj.importedNameToReexportNames[importName] = [];
-    }
-    moduleImportObj.importedNameToReexportNames[importName].push(exportName);
+    importedNameMap[importName].reexportNames.push(exportName);
   } else {
-    throw new Error('Unexpected condition in addToModuleImports');
+    throw new Error('Unexpected condition in addToExternalImportsData');
   }
 }
