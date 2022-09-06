@@ -137,6 +137,13 @@ type ResolvedRequest = {
   isExternal: boolean;
 };
 
+/**
+ * Maps imported paths to its imported names
+ */
+type ImportedRequestMap = ResolvedExternalImports | ResolvedExternalImports;
+/**
+ * Maps imported names (from an imported path) to its local usage data
+ */
 type ImportedNameMap = Record<
   ImportedName,
   {
@@ -144,7 +151,6 @@ type ImportedNameMap = Record<
     reexportNames: ExportedName[];
   }
 >;
-
 type ResolvedExternalImports = Record<
   string,
   {
@@ -152,11 +158,7 @@ type ResolvedExternalImports = Record<
     hasAnonymousImport: boolean;
   }
 >;
-
-/**
- * Need special handling when `importedNames` includes '*'
- */
-type ResolvedModuleImports = Record<
+type ResolvedExternalImports = Record<
   ResolvedPath,
   {
     importedNameMap: ImportedNameMap;
