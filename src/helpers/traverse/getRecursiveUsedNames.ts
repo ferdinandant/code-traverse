@@ -40,6 +40,10 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
   if (visitedCacheKeys.has(cacheKey)) {
     return new Set<string>();
   }
+  // File is not handled (e.g. doesn't match `config.extensions`)
+  if (!state.fileData[file]) {
+    return new Set<string>();
+  }
   visitedCacheKeys.add(cacheKey);
 
   // Process a single name
@@ -130,9 +134,9 @@ function getMatchingImportForName(
   // Each `name` should only appear once as a local name inside `moduleImports`
   // (can't declare the same local name twice). So we only need to find one entry.
   for (const importFrom in moduleImports) {
-    const { importedNameToLocalNames } = moduleImports[importFrom];
-    for (const importName in importedNameToLocalNames) {
-      const localNames = importedNameToLocalNames[importName];
+    const { importedNameMap } = moduleImports[importFrom];
+    for (const importName in importedNameMap) {
+      const { localNames } = importedNameMap[importName];
       if (localNames.includes(localName)) {
         return { file: importFrom, name: importName };
       }
