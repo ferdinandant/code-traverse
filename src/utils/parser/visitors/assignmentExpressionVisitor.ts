@@ -60,6 +60,7 @@ export function assignmentExpressionVisitor({
   if (isModuleExports) {
     pushToExportMap(exportMap, {
       name: 'default',
+      isReexport: false,
       dependencies: topLevelDependencies,
       loc: rhsLoc,
     });
@@ -67,6 +68,7 @@ export function assignmentExpressionVisitor({
     const exportName = left.property.name;
     pushToExportMap(exportMap, {
       name: exportName,
+      isReexport: false,
       dependencies: topLevelDependencies,
       loc: rhsLoc,
     });
