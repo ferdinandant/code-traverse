@@ -56,18 +56,15 @@ function processEntries(config: Config) {
 function processResolve(config: Config) {
   const { resolve = {} } = config;
   let parsedResolve: StdResolve;
-  if (typeof resolve === 'function') {
-    parsedResolve = resolve;
-  } else {
-    if (resolve?.lookupDirs && !Array.isArray(resolve?.lookupDirs)) {
-      throw new Error('lookupDirs should be an array');
-    }
-    parsedResolve = {
-      externals: new Set(resolve.externals || []),
-      lookupDirs: resolve.lookupDirs || ['./'],
-      alias: resolve.alias || Object.create(null),
-    };
+  if (resolve?.lookupDirs && !Array.isArray(resolve?.lookupDirs)) {
+    throw new Error('lookupDirs should be an array');
   }
+  parsedResolve = {
+    externals: new Set(resolve.externals || []),
+    lookupDirs: resolve.lookupDirs || ['./'],
+    alias: resolve.alias || Object.create(null),
+    resolveFn: resolve.resolveFn,
+  };
   (config as any).resolve = parsedResolve;
 }
 

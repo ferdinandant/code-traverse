@@ -2,6 +2,10 @@ import path from 'path';
 import module from 'module';
 import { isFileExistsAtAbsolutePath } from '../utils/isFileExistsAtAbsolutePath';
 
+// ================================================================================
+// TYPES/CONST
+// ================================================================================
+
 type Opts = {
   state: State;
   config: StandardizedConfig;
@@ -17,16 +21,35 @@ const builtinModules = new Set<string>(module.builtinModules);
 // Construct regexes from `resolve.alias` once
 let aliasRegexPairs: Array<[string, RegExp]>;
 
-export async function resolveRequest({
-  state,
-  config,
-  request,
-  context,
-}: Opts): Promise<ResolvedRequest> {
-  const { baseDir, resolve, extensions } = config;
-  if (typeof resolve === 'function') {
-    return await resolve(context, request);
+// ================================================================================
+// MAIN
+// ================================================================================
+
+export async function resolveRequest(opts: Opts): Promise<ResolvedRequest> {
+  const { state, config, request, context } = opts;
+  const {
+    resolve: { resolveFn },
+  } = config;
+
+  if (resolveFn) {
+    const resolveNormally = async () => {
+      return await internalResolveRequest(opts);
+    };
+    return await resolveFn({
+      libState: state,
+      config,
+      request,
+      context,
+      resolveNormally,
+    });
+  } else {
+    return await internalResolveRequest(opts);
   }
+}
+
+async function internalResolveRequest(opts: Opts) {
+  const { state, config, request, context } = opts;
+  const { baseDir, resolve, extensions } = config;
 
   // Resolve alias
   const { alias, externals, lookupDirs } = resolve;
@@ -102,6 +125,10 @@ export async function resolveRequest({
   const ctxStr = JSON.stringify({ context, request, attemptedPaths }, null, 2);
   throw new Error(`Unable to resolve file: ${ctxStr}`);
 }
+
+// ================================================================================
+// HELPERS
+// ================================================================================
 
 /**
  * For scoped filename, take the scope and package name (e.g. '@aaa/bbb/ccc' -> '@aaa/bbb'),
