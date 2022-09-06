@@ -40,6 +40,10 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
   if (visitedCacheKeys.has(cacheKey)) {
     return new Set<string>();
   }
+  // File is not handled (e.g. doesn't match `config.extensions`)
+  if (!state.fileData[file]) {
+    return new Set<string>();
+  }
   visitedCacheKeys.add(cacheKey);
 
   // Process a single name
@@ -65,12 +69,18 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
       });
       // Process dependencies of `name`
       exportNameDependencies.forEach(topLevelName => {
-        const matchingImport = getMatchingImportForName(file, topLevelName);
-        if (matchingImport) {
-          // Traverse referenced import
-          // We don't mark `topLevelName` as used here
-          // (it will be added as used by the children file)
-          const { file: importedFile, name: importedName } = matchingImport;
+        const matchingModuleImport = hasMathingImport(
+          state.fileData[file].moduleImports,
+          topLevelName
+        );
+        // Traverse referenced import
+        // We don't mark `topLevelName` as used here
+        // (it will be added as used by the children file)
+        if (matchingModuleImport) {
+          const {
+            file: importedFile,
+            name: importedName,
+          } = matchingModuleImport;
           const recursiveDependencies = getRecursiveDependencies(
             importedFile,
             importedName
@@ -78,8 +88,20 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
           recursiveDependencies.forEach(cacheKey => {
             allRecursiveNames.add(cacheKey);
           });
+          return;
+        }
+        // Mark the current name as used
+        const matchingExternalImport = hasMathingImport(
+          state.fileData[file].externalImports,
+          topLevelName
+        );
+        if (matchingExternalImport) {
+          const cacheKey = encodeToCacheKey({
+            file: matchingExternalImport.file,
+            name: matchingExternalImport.name,
+          });
+          allRecursiveNames.add(cacheKey);
         } else {
-          // Mark the current name as used
           const cacheKey = encodeToCacheKey({ file, name: topLevelName });
           allRecursiveNames.add(cacheKey);
         }
@@ -122,17 +144,17 @@ function getNonReexportExportNames(file: string) {
   });
 }
 
-function getMatchingImportForName(
-  file: string,
+function hasMathingImport(
+  importedRequestMap: ImportedRequestMap,
   localName: string
 ): FileAndNamePair | null {
-  const { moduleImports } = state.fileData[file];
+  // const { moduleImports } = state.fileData[file];
   // Each `name` should only appear once as a local name inside `moduleImports`
   // (can't declare the same local name twice). So we only need to find one entry.
-  for (const importFrom in moduleImports) {
-    const { importedNameToLocalNames } = moduleImports[importFrom];
-    for (const importName in importedNameToLocalNames) {
-      const localNames = importedNameToLocalNames[importName];
+  for (const importFrom in importedRequestMap) {
+    const { importedNameMap } = importedRequestMap[importFrom];
+    for (const importName in importedNameMap) {
+      const { localNames } = importedNameMap[importName];
       if (localNames.includes(localName)) {
         return { file: importFrom, name: importName };
       }

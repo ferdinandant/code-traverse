@@ -124,7 +124,13 @@ type ExportMap = Record<
 // RESOLVE
 // ================================================================================
 
-type ResolveFn = (context: string, request: string) => Promise<ResolvedRequest>;
+type ResolveFn = (opts: {
+  libState: State;
+  config: StandardizedConfig;
+  context: string;
+  request: string;
+  resolveNormally: () => Promise<ResolvedRequest>;
+}) => Promise<ResolvedRequest>;
 
 type ResolvedRequest = {
   resolvedPath: string;
@@ -132,20 +138,36 @@ type ResolvedRequest = {
 };
 
 /**
- * Need special handling when `importedNames` includes '*'
+ * Maps imported paths to its imported names
  */
-type ResolvedModuleImports = Record<
+type ImportedRequestMap = ResolvedExternalImports | ResolvedExternalImports;
+/**
+ * Maps imported names (from an imported path) to its local usage data
+ */
+type ImportedNameMap = Record<
+  ImportedName,
+  {
+    localNames: LocalName[];
+    reexportNames: ExportedName[];
+  }
+>;
+type ResolvedExternalImports = Record<
+  string,
+  {
+    importedNameMap: ImportedNameMap;
+    hasAnonymousImport: boolean;
+  }
+>;
+type ResolvedExternalImports = Record<
   ResolvedPath,
   {
-    importedNames: Set<ImportedName>;
-    importedNameToLocalNames: Record<ImportedName, LocalName[]>;
-    importedNameToReexportNames: Record<ImportedName, ExportedName[]>;
+    importedNameMap: ImportedNameMap;
     hasAnonymousImport: boolean;
   }
 >;
 type ResolvedParseResult = {
   topLevelDeclarations: TopLevelDeclaration;
-  externalImports: Set<string>;
+  externalImports: ResolvedExternalImports;
   moduleImports: ResolvedModuleImports;
   exportMap: ExportMap;
 };
@@ -165,18 +187,20 @@ type ResolveObj = {
   externals?: string[];
   lookupDirs?: string[];
   alias?: Record<string, string>;
+  resolveFn?: ResolveFn;
 };
 type StdResolveObj = {
   externals: Set<string>;
   lookupDirs: string[];
   alias: Record<string, string>;
+  resolveFn?: ResolveFn;
 };
 /**
  * Dictates how to resolve modules/files
  * (and which file extensions are parsed)
  */
-type Resolve = ResolveObj | ResolveFn;
-type StdResolve = StdResolveObj | ResolveFn;
+type Resolve = ResolveObj;
+type StdResolve = StdResolveObj;
 
 /**
  * Globs to include/exclude files

@@ -40,9 +40,10 @@ export function resolveReexportNames({ state }: Opts) {
 
   const resolveSingleReexports = (file: string) => {
     const { moduleImports, reexportMap } = fileData[file];
-    const reexportChildFiles = Object.keys(moduleImports).filter(
-      childFile => moduleImports[childFile].importedNameToReexportNames['*']
-    );
+    const reexportChildFiles = Object.keys(moduleImports).filter(childFile => {
+      const importAllMap = moduleImports[childFile].importedNameMap['*'];
+      return importAllMap && importAllMap.reexportNames.length > 0;
+    });
     for (const reexportChildFile of reexportChildFiles) {
       // Read children exports and reexports
       const childExportNames = getAllFileExportNames(reexportChildFile);
@@ -63,7 +64,10 @@ export function resolveReexportNames({ state }: Opts) {
     members.forEach(file => {
       const { moduleImports } = state.fileData[file];
       const reexportChildFiles = Object.keys(moduleImports).filter(
-        childFile => moduleImports[childFile].importedNameToReexportNames['*']
+        childFile => {
+          const importAllMap = moduleImports[childFile].importedNameMap['*'];
+          return importAllMap && importAllMap.reexportNames.length > 0;
+        }
       );
       if (reexportChildFiles.length > 0) {
         membersWithReexports.add(file);
