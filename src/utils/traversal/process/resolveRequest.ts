@@ -73,7 +73,7 @@ async function internalResolveRequest(opts: Opts) {
     externals.has(possiblePackageName) ||
     state.externals.has(possiblePackageName)
   ) {
-    return { resolvedPath: possiblePackageName, isExternal: true };
+    return { resolvedPath: aliasedRequest, isExternal: true };
   }
 
   // Find matching file

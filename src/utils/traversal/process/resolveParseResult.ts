@@ -11,7 +11,6 @@ type Opts = {
 type AddToModuleImportsOpts = {
   externalImports: ResolvedExternalImports;
   moduleImports: ResolvedModuleImports;
-  originalRequest: string;
   resolvedRequest: ResolvedRequest;
 } & (
   | {
@@ -71,7 +70,6 @@ export async function resolveParseResult({
       externalImports,
       moduleImports,
       resolvedRequest,
-      originalRequest: request,
       isAnonymousImport: true,
     });
   }
@@ -87,7 +85,6 @@ export async function resolveParseResult({
     addToImportsData({
       externalImports,
       moduleImports,
-      originalRequest: request,
       resolvedRequest,
       importName,
       localName,
@@ -101,7 +98,6 @@ export async function resolveParseResult({
     addToImportsData({
       externalImports,
       moduleImports,
-      originalRequest: request,
       resolvedRequest,
       importName,
       exportName,
@@ -116,17 +112,12 @@ export async function resolveParseResult({
 // ================================================================================
 
 function addToImportsData(opts: AddToModuleImportsOpts) {
-  const {
-    externalImports,
-    moduleImports,
-    originalRequest,
-    resolvedRequest,
-  } = opts;
+  const { externalImports, moduleImports, resolvedRequest } = opts;
   const { resolvedPath, isExternal } = resolvedRequest;
   if (isExternal) {
     // Handle externals
-    if (!externalImports[originalRequest]) {
-      externalImports[originalRequest] = {
+    if (!externalImports[resolvedPath]) {
+      externalImports[resolvedPath] = {
         importedNameMap: Object.create(null),
         hasAnonymousImport: false,
       };
@@ -146,17 +137,17 @@ function addToImportsData(opts: AddToModuleImportsOpts) {
 
 function addToExternalImportsData({
   externalImports,
-  originalRequest,
   resolvedRequest,
   ...nameData
 }: AddToModuleImportsOpts) {
+  const { resolvedPath } = resolvedRequest;
   if ('isAnonymousImport' in nameData) {
-    externalImports[originalRequest].hasAnonymousImport = true;
+    externalImports[resolvedPath].hasAnonymousImport = true;
     return;
   }
   // Initialize name map
   const { importName } = nameData;
-  const { importedNameMap } = externalImports[originalRequest];
+  const { importedNameMap } = externalImports[resolvedPath];
   if (!importedNameMap[importName]) {
     importedNameMap[importName] = {
       localNames: [],
