@@ -20,7 +20,6 @@ export { getRecursiveUsedNames } from './helpers/traverse/getRecursiveUsedNames'
 
 export default async function main(rawConfig: Config) {
   const config = parseConfig(rawConfig);
-  const userState = {} as any;
 
   // --------------------------------------------------------------------------------
   // Initialize
@@ -31,8 +30,7 @@ export default async function main(rawConfig: Config) {
   if (config.onAfterInitialization) {
     config.onAfterInitialization({
       config,
-      userState,
-      libState: state,
+      state,
     });
   }
 
@@ -49,7 +47,6 @@ export default async function main(rawConfig: Config) {
       const targetFile = entryFile;
       await visitFile({
         state,
-        userState,
         config,
         targetFile,
       });
@@ -73,8 +70,7 @@ export default async function main(rawConfig: Config) {
   if (config.onDone) {
     config.onDone({
       config,
-      userState,
-      libState: state,
+      state,
     });
   }
 }

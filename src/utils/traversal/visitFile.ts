@@ -4,18 +4,12 @@ import { processFile } from './process/processFile';
 
 type Opts = {
   state: State;
-  userState: any;
   config: StandardizedConfig;
   // sourceFile: null | string;
   targetFile: string;
 };
 
-export async function visitFile({
-  state,
-  userState,
-  config,
-  targetFile,
-}: Opts) {
+export async function visitFile({ state, config, targetFile }: Opts) {
   const { debug } = config;
   const stateWithTmp = state as StateWithVisitTmp;
   if (!targetFile.startsWith('/')) {
@@ -48,7 +42,6 @@ export async function visitFile({
   const { fileData } = state;
   const resolvedParseResult = await processFile({
     state,
-    userState,
     config,
     targetFile,
   });
@@ -66,7 +59,6 @@ export async function visitFile({
       fileToIsVisited[childFile] = true;
       await visitFile({
         state,
-        userState,
         config,
         targetFile: childFile,
       });

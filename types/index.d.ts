@@ -210,8 +210,7 @@ type Glob = string;
 // Default hooks
 type DefaultHookStateArg = {
   config: StandardizedConfig;
-  userState: any;
-  libState: State;
+  state: State;
 };
 type OnAfterInitializationFn = (arg: DefaultHookStateArg) => any;
 type OnDoneFn = (arg: DefaultHookStateArg) => any;
