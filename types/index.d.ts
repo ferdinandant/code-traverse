@@ -158,7 +158,7 @@ type ResolvedExternalImports = Record<
     hasAnonymousImport: boolean;
   }
 >;
-type ResolvedExternalImports = Record<
+type ResolvedModuleImports = Record<
   ResolvedPath,
   {
     importedNameMap: ImportedNameMap;
