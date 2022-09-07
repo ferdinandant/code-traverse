@@ -130,8 +130,8 @@ function addToImportsData(opts: AddToModuleImportsOpts) {
         importedNameMap: Object.create(null),
         hasAnonymousImport: false,
       };
-      addToExternalImportsData(opts);
     }
+    addToExternalImportsData(opts);
   } else {
     // Handle user module import
     if (!moduleImports[resolvedPath]) {

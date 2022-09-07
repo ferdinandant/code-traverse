@@ -41,16 +41,22 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
     return new Set<string>();
   }
   // File is not handled (e.g. doesn't match `config.extensions`)
+  // Mark everything of this file as used
   if (!state.fileData[file]) {
-    return new Set<string>();
+    const cacheKey = encodeToCacheKey({ file, name: '*' });
+    return new Set<string>([cacheKey]);
   }
   visitedCacheKeys.add(cacheKey);
 
   // Process a single name
   if (name !== '*') {
-    const { topLevelDeclarations, exportMap, reexportMap } = state.fileData[
-      file
-    ];
+    const {
+      topLevelDeclarations,
+      moduleImports,
+      externalImports,
+      exportMap,
+      reexportMap,
+    } = state.fileData[file];
     if (exportMap[name]) {
       const allRecursiveNames = new Set<string>();
       allRecursiveNames.add(cacheKey);
@@ -67,44 +73,21 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
           exportNameDependencies.add(dep);
         });
       });
+      // Process anonymous imports (imports that are only used for side-effect)
+      // They don't have local name, so treat it as import from *
+      const anonymousImportPaths = [
+        ...getAnonymousImports(externalImports),
+        ...getAnonymousImports(moduleImports),
+      ];
+      anonymousImportPaths.forEach(importPath => {
+        const recursiveDependencies = getRecursiveDependencies(importPath, '*');
+        recursiveDependencies.forEach(cacheKey => {
+          allRecursiveNames.add(cacheKey);
+        });
+      });
       // Process dependencies of `name`
       exportNameDependencies.forEach(topLevelName => {
-        const matchingModuleImport = hasMathingImport(
-          state.fileData[file].moduleImports,
-          topLevelName
-        );
-        // Traverse referenced import
-        // We don't mark `topLevelName` as used here
-        // (it will be added as used by the children file)
-        if (matchingModuleImport) {
-          const {
-            file: importedFile,
-            name: importedName,
-          } = matchingModuleImport;
-          const recursiveDependencies = getRecursiveDependencies(
-            importedFile,
-            importedName
-          );
-          recursiveDependencies.forEach(cacheKey => {
-            allRecursiveNames.add(cacheKey);
-          });
-          return;
-        }
-        // Mark the current name as used
-        const matchingExternalImport = hasMathingImport(
-          state.fileData[file].externalImports,
-          topLevelName
-        );
-        if (matchingExternalImport) {
-          const cacheKey = encodeToCacheKey({
-            file: matchingExternalImport.file,
-            name: matchingExternalImport.name,
-          });
-          allRecursiveNames.add(cacheKey);
-        } else {
-          const cacheKey = encodeToCacheKey({ file, name: topLevelName });
-          allRecursiveNames.add(cacheKey);
-        }
+        processTopLevelName(allRecursiveNames, file, topLevelName);
       });
       return (cacheKeyToRecursiveNames[cacheKey] = allRecursiveNames);
     } else if (reexportMap[name]) {
@@ -119,15 +102,26 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
   }
 
   // Process name of '*'
-  // We only need to look at the export names
-  // (because a file is only usable from its exported names :s)
-  const nonReexportExportNames = getNonReexportExportNames(file);
   const allRecursiveNames = new Set<string>();
-  nonReexportExportNames.forEach(exportName => {
-    const recursiveName = getRecursiveDependencies(file, exportName);
-    recursiveName.forEach(name => {
-      allRecursiveNames.add(name);
+  const {
+    topLevelDeclarations,
+    externalImports,
+    moduleImports,
+  } = state.fileData[file];
+  // Look for anonymous imports
+  const anonymousImportPaths = [
+    ...getAnonymousImports(externalImports),
+    ...getAnonymousImports(moduleImports),
+  ];
+  anonymousImportPaths.forEach(importPath => {
+    const recursiveDependencies = getRecursiveDependencies(importPath, '*');
+    recursiveDependencies.forEach(cacheKey => {
+      allRecursiveNames.add(cacheKey);
     });
+  });
+  // Look for non re-export local names
+  Object.keys(topLevelDeclarations).forEach(topLevelName => {
+    processTopLevelName(allRecursiveNames, file, topLevelName);
   });
   return (cacheKeyToRecursiveNames[cacheKey] = allRecursiveNames);
 }
@@ -136,11 +130,48 @@ function getRecursiveDependencies(file: string, name: string): Set<CacheKey> {
 // HELPERS
 // ================================================================================
 
-function getNonReexportExportNames(file: string) {
-  const { exportMap } = state.fileData[file];
-  // Excludes those that are re-export
-  return Object.keys(exportMap).filter(name => {
-    return !exportMap[name].isReexport;
+function processTopLevelName(
+  allRecursiveNames: Set<string>,
+  file: string,
+  topLevelName: string
+) {
+  const matchingModuleImport = hasMathingImport(
+    state.fileData[file].moduleImports,
+    topLevelName
+  );
+  // We don't mark `topLevelName` as used here
+  // (it will be added as used by the children file)
+  if (matchingModuleImport) {
+    const { file: importedFile, name: importedName } = matchingModuleImport;
+    const recursiveDependencies = getRecursiveDependencies(
+      importedFile,
+      importedName
+    );
+    recursiveDependencies.forEach(cacheKey => {
+      allRecursiveNames.add(cacheKey);
+    });
+    return;
+  }
+  // Mark the current name as used
+  const matchingExternalImport = hasMathingImport(
+    state.fileData[file].externalImports,
+    topLevelName
+  );
+  if (matchingExternalImport) {
+    const cacheKey = encodeToCacheKey({
+      file: matchingExternalImport.file,
+      name: matchingExternalImport.name,
+    });
+    allRecursiveNames.add(cacheKey);
+  } else {
+    const cacheKey = encodeToCacheKey({ file, name: topLevelName });
+    allRecursiveNames.add(cacheKey);
+  }
+}
+
+function getAnonymousImports(importedRequestMap: ImportedRequestMap) {
+  return Object.keys(importedRequestMap).filter(importPath => {
+    return importedRequestMap[importPath].hasAnonymousImport;
   });
 }
 
@@ -148,7 +179,6 @@ function hasMathingImport(
   importedRequestMap: ImportedRequestMap,
   localName: string
 ): FileAndNamePair | null {
-  // const { moduleImports } = state.fileData[file];
   // Each `name` should only appear once as a local name inside `moduleImports`
   // (can't declare the same local name twice). So we only need to find one entry.
   for (const importFrom in importedRequestMap) {
