@@ -1,3 +1,9 @@
+import {
+  Config,
+  StandardizedConfig,
+  StdEntries,
+  StdResolve,
+} from '../../types';
 import path from 'path';
 import globToRegExp from 'glob-to-regexp';
 

@@ -1,6 +1,14 @@
 import { ParseResult as BabelParseResult } from '@babel/parser';
 import traverse from '@babel/traverse';
 import { File } from '@babel/types';
+// --- Types ---
+import {
+  TopLevelDeclaration,
+  ImportSpec,
+  AnonymousImportSpec,
+  ReexportImportSpec,
+  ExportMap,
+} from '../../types';
 // --- Visitors ---
 import { programVisitor } from './visitors/programVisitor';
 import { importDeclarationVisitor } from './visitors/importDeclarationVisitor';

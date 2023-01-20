@@ -1,5 +1,6 @@
 import { NodePath } from '@babel/traverse';
 import { ExportAllDeclaration } from '@babel/types';
+import { ReexportImportSpec } from '../../../types';
 
 type Opts = {
   path: NodePath<ExportAllDeclaration>;

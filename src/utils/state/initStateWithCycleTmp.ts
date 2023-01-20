@@ -1,3 +1,4 @@
+import { State, StateWithCycleTmp } from '../../types';
 import { Stack } from '../../struct/Stack';
 
 export function initStateWithCycleTmp(state: State) {

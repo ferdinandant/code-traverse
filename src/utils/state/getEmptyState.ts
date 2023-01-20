@@ -1,3 +1,5 @@
+import { State } from '../../types';
+
 export function getEmptyState(overrides: any = {}): State {
   const baseState: State = {
     packageNameToBasePath: Object.create(null),

@@ -1,3 +1,7 @@
+import { File, SourceLocation } from '@babel/types';
+import { ParseResult } from '@babel/parser';
+import { Stack } from '../struct/Stack';
+
 export type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT;
 
 /**
@@ -27,7 +31,7 @@ export type ReexportMap = Record<ExportedName, { file: string }>;
 /**
  * null means the export depends on the current file
  */
-export type ResolvedExport = { from };
+export type ResolvedExport = { from: string | null };
 export type ResolvedExports = Record<ExportedName, ResolvedExport>;
 
 export type FileParseData = ResolvedParseResult & {
@@ -74,8 +78,6 @@ export type StateWithCycleTmp = State & {
 // ================================================================================
 // PARSING
 // ================================================================================
-
-export type SourceLocation = import('@babel/export types').SourceLocation;
 
 export type TopLevelDeclaration = Record<
   string,
@@ -222,7 +224,7 @@ export type OnAfterParseArg = DefaultHookStateArg & {
   parseResult: any;
   file: string;
   codeStr: string;
-  ast: import('@babel/parser').ParseResult;
+  ast: ParseResult<File>;
 };
 export type OnAfterParseFn = (arg: OnAfterParseArg) => any;
 

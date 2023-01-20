@@ -1,4 +1,5 @@
 import path from 'path';
+import { State, StandardizedConfig, StateWithVisitTmp } from '../../types';
 import { getInitFileData } from '../state/getInitFileData';
 import { processFile } from './process/processFile';
 

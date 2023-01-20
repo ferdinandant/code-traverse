@@ -1,3 +1,5 @@
+import { FileStateData } from '../../types';
+
 export function getInitFileData(): FileStateData {
   return {
     // --- traversal ---

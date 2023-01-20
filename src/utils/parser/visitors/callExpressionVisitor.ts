@@ -5,6 +5,11 @@ import {
   isTemplateLiteral,
   Literal,
 } from '@babel/types';
+import {
+  ImportSpec,
+  AnonymousImportSpec,
+  TopLevelDeclaration,
+} from '../../../types';
 import { findEnclosingTopLevelNames } from '../utils/findEnclosingTopLevelNames';
 
 type Opts = {

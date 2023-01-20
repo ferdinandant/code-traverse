@@ -3,7 +3,7 @@
  * yarn dev ./example/traverse-nodejs-web.js
  */
 import path from 'path';
-import main from './index';
+import main, { Config } from './index';
 
 // Read config
 const configFile = process.argv[2];

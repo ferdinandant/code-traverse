@@ -1,4 +1,5 @@
 import { SourceLocation } from '@babel/types';
+import { ExportMap } from '../../../types';
 
 type ItemSpec = {
   name: string;

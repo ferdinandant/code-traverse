@@ -1,3 +1,5 @@
+import { State, ImportedRequestMap } from '../../types';
+
 /**
  * Encoded file and name pair:
  * e.g. 'myVariable@/path/to/file'

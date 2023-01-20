@@ -1,5 +1,6 @@
 import { NodePath } from '@babel/traverse';
 import { Program } from '@babel/types';
+import { TopLevelDeclaration } from '../../../types';
 import { findEnclosingTopLevelNames } from '../utils/findEnclosingTopLevelNames';
 
 type ProgramVisitorFnOpts = {

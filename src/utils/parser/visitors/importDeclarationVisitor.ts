@@ -1,5 +1,6 @@
 import { NodePath } from '@babel/traverse';
 import { ImportDeclaration } from '@babel/types';
+import { AnonymousImportSpec, ImportSpec } from '../../../types';
 
 type Opts = {
   path: NodePath<ImportDeclaration>;
