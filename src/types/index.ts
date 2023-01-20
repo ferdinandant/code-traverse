@@ -1,19 +1,23 @@
-type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT;
+import { File, SourceLocation } from '@babel/types';
+import { ParseResult } from '@babel/parser';
+import { Stack } from '../struct/Stack';
+
+export type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT;
 
 /**
  * Absolute path to a file
  */
-type ResolvedPath = string;
+export type ResolvedPath = string;
 
-type ImportedName = string;
-type ExportedName = string;
-type LocalName = string;
+export type ImportedName = string;
+export type ExportedName = string;
+export type LocalName = string;
 
 // ================================================================================
 // STATE
 // ================================================================================
 
-type CycleData = {
+export type CycleData = {
   members: Set<string>;
   children: Set<string>;
 };
@@ -22,27 +26,27 @@ type CycleData = {
  * Contains exports exported via `export * from <...>`.
  * Note: may want to combine data from `export {...} from <...>` here
  */
-type ReexportMap = Record<ExportedName, { file: string }>;
+export type ReexportMap = Record<ExportedName, { file: string }>;
 
 /**
  * null means the export depends on the current file
  */
-type ResolvedExport = { from };
-type ResolvedExports = Record<ExportedName, ResolvedExport>;
+export type ResolvedExport = { from: string | null };
+export type ResolvedExports = Record<ExportedName, ResolvedExport>;
 
-type FileParseData = ResolvedParseResult & {
+export type FileParseData = ResolvedParseResult & {
   reexportMap: ReexportMap;
 };
-type FileTraversalData = {
+export type FileTraversalData = {
   parents: Set<string>;
 };
-type FileCycleData = {
+export type FileCycleData = {
   isInCycle: boolean;
   cycleRootId: number;
 };
-type FileStateData = FileTraversalData & FileParseData & FileCycleData;
+export type FileStateData = FileTraversalData & FileParseData & FileCycleData;
 
-type State = {
+export type State = {
   packageNameToBasePath: Record<string, string>;
   externals: Set<string>;
   fileData: Record<ResolvedPath, FileStateData>;
@@ -50,13 +54,13 @@ type State = {
   tmp?: unknown;
 };
 
-type StateWithVisitTmp = State & {
+export type StateWithVisitTmp = State & {
   tmp: {
     fileToIsVisited: Record<ResolvedPath, boolean>;
   };
 };
 
-type StateWithCycleTmp = State & {
+export type StateWithCycleTmp = State & {
   tmp: {
     nextFileId: number;
     stack: Stack<string>;
@@ -75,9 +79,7 @@ type StateWithCycleTmp = State & {
 // PARSING
 // ================================================================================
 
-type SourceLocation = import('@babel/types').SourceLocation;
-
-type TopLevelDeclaration = Record<
+export type TopLevelDeclaration = Record<
   string,
   {
     recursiveDependencies: string[];
@@ -86,15 +88,15 @@ type TopLevelDeclaration = Record<
   }
 >;
 
-type ImportSpec = {
+export type ImportSpec = {
   importFrom: string;
   name: ImportedName;
   localTopLevelName: LocalName;
 };
-type AnonymousImportSpec = {
+export type AnonymousImportSpec = {
   importFrom: string;
 };
-type ReexportImportSpec = {
+export type ReexportImportSpec = {
   importFrom: string;
   importName: ImportedName;
   exportName: ExportedName;
@@ -103,7 +105,7 @@ type ReexportImportSpec = {
 /**
  * Maps exported variable name to export information
  * (could be 'default'). Coincides with a top-level local variable name
- * if it's exported via `export <const|function|class|type> <something>`),
+ * if it's exported via `export <const|function|class|export type> <something>`),
  * otherwise it will refer to an `exportName` from `ReexportImportSpec`.
  *
  * `locs` is the value and/or name declaration locs, e.g.:
@@ -111,7 +113,7 @@ type ReexportImportSpec = {
  * - `a = 5` and `b = 7` of `export const a = 5, b = 7;`
  * - `q = init` and `{ q: a }` of `export const { q = init } = { q: a }`
  */
-type ExportMap = Record<
+export type ExportMap = Record<
   ExportedName,
   {
     isReexport: boolean;
@@ -124,7 +126,7 @@ type ExportMap = Record<
 // RESOLVE
 // ================================================================================
 
-type ResolveFn = (opts: {
+export type ResolveFn = (opts: {
   libState: State;
   config: StandardizedConfig;
   context: string;
@@ -132,7 +134,7 @@ type ResolveFn = (opts: {
   resolveNormally: () => Promise<ResolvedRequest>;
 }) => Promise<ResolvedRequest>;
 
-type ResolvedRequest = {
+export type ResolvedRequest = {
   resolvedPath: string;
   isExternal: boolean;
 };
@@ -140,32 +142,34 @@ type ResolvedRequest = {
 /**
  * Maps imported paths to its imported names
  */
-type ImportedRequestMap = ResolvedExternalImports | ResolvedExternalImports;
+export type ImportedRequestMap =
+  | ResolvedExternalImports
+  | ResolvedExternalImports;
 /**
  * Maps imported names (from an imported path) to its local usage data
  */
-type ImportedNameMap = Record<
+export type ImportedNameMap = Record<
   ImportedName,
   {
     localNames: LocalName[];
     reexportNames: ExportedName[];
   }
 >;
-type ResolvedExternalImports = Record<
+export type ResolvedExternalImports = Record<
   string,
   {
     importedNameMap: ImportedNameMap;
     hasAnonymousImport: boolean;
   }
 >;
-type ResolvedModuleImports = Record<
+export type ResolvedModuleImports = Record<
   ResolvedPath,
   {
     importedNameMap: ImportedNameMap;
     hasAnonymousImport: boolean;
   }
 >;
-type ResolvedParseResult = {
+export type ResolvedParseResult = {
   topLevelDeclarations: TopLevelDeclaration;
   externalImports: ResolvedExternalImports;
   moduleImports: ResolvedModuleImports;
@@ -180,16 +184,16 @@ type ResolvedParseResult = {
  * Maps a chunk name (e.g. 'main' or 'desktop'
  * to a list of file paths, relative to the config's `baseDir`
  */
-type Entries = Record<string, string | string[]>;
-type StdEntries = Record<string, string[]>;
+export type Entries = Record<string, string | string[]>;
+export type StdEntries = Record<string, string[]>;
 
-type ResolveObj = {
+export type ResolveObj = {
   externals?: string[];
   lookupDirs?: string[];
   alias?: Record<string, string>;
   resolveFn?: ResolveFn;
 };
-type StdResolveObj = {
+export type StdResolveObj = {
   externals: Set<string>;
   lookupDirs: string[];
   alias: Record<string, string>;
@@ -199,32 +203,32 @@ type StdResolveObj = {
  * Dictates how to resolve modules/files
  * (and which file extensions are parsed)
  */
-type Resolve = ResolveObj;
-type StdResolve = StdResolveObj;
+export type Resolve = ResolveObj;
+export type StdResolve = StdResolveObj;
 
 /**
  * Globs to include/exclude files
  */
-type Glob = string;
+export type Glob = string;
 
 // Default hooks
-type DefaultHookStateArg = {
+export type DefaultHookStateArg = {
   config: StandardizedConfig;
   state: State;
 };
-type OnAfterInitializationFn = (arg: DefaultHookStateArg) => any;
-type OnDoneFn = (arg: DefaultHookStateArg) => any;
+export type OnAfterInitializationFn = (arg: DefaultHookStateArg) => any;
+export type OnDoneFn = (arg: DefaultHookStateArg) => any;
 
 // Parsing hooks
-type OnAfterParseArg = DefaultHookStateArg & {
+export type OnAfterParseArg = DefaultHookStateArg & {
   parseResult: any;
   file: string;
   codeStr: string;
-  ast: import('@babel/parser').ParseResult;
+  ast: ParseResult<File>;
 };
-type OnAfterParseFn = (arg: OnAfterParseArg) => any;
+export type OnAfterParseFn = (arg: OnAfterParseArg) => any;
 
-type Config = {
+export type Config = {
   baseDir: string;
   entries: Entries;
   resolve?: Resolve;
@@ -236,7 +240,7 @@ type Config = {
   onAfterParse?: OnAfterParseFn;
   onDone?: OnDoneFn;
 };
-type StandardizedConfig = Overwrite<
+export type StandardizedConfig = Overwrite<
   Config,
   {
     entries: StdEntries;

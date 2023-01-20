@@ -1,5 +1,6 @@
 import { NodePath } from '@babel/traverse';
 import { ExportDefaultDeclaration } from '@babel/types';
+import { ExportMap, TopLevelDeclaration } from '../../../types';
 import { pushToExportMap } from '../utils/pushToExportMap';
 import { getTopLevelDependencies } from '../utils/getTopLevelDependencies';
 

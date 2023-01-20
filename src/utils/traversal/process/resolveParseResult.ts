@@ -1,3 +1,11 @@
+import {
+  State,
+  StandardizedConfig,
+  ResolvedExternalImports,
+  ResolvedModuleImports,
+  ResolvedRequest,
+  ResolvedParseResult,
+} from '../../../types';
 import { ParseResult } from '../../parser/processAst';
 import { resolveRequest } from './resolveRequest';
 

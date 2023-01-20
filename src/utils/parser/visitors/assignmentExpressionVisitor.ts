@@ -1,5 +1,6 @@
 import { NodePath } from '@babel/traverse';
 import { AssignmentExpression } from '@babel/types';
+import { TopLevelDeclaration, ExportMap } from '../../../types';
 import { isNameInScope } from '../utils/isNameInScope';
 import { pushToExportMap } from '../utils/pushToExportMap';
 import { getTopLevelDependencies } from '../utils/getTopLevelDependencies';

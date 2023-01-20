@@ -1,5 +1,6 @@
 import path from 'path';
 import module from 'module';
+import { StandardizedConfig, State, ResolvedRequest } from '../../../types';
 import { isFileExistsAtAbsolutePath } from '../utils/isFileExistsAtAbsolutePath';
 
 // ================================================================================

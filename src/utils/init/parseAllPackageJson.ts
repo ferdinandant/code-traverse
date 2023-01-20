@@ -1,5 +1,6 @@
 import path from 'path';
 import globby from 'globby';
+import { State, StandardizedConfig } from '../../types';
 
 type Opts = {
   state: State;

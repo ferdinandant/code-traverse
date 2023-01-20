@@ -5,6 +5,11 @@ import {
   ObjectPattern,
   ArrayPattern,
 } from '@babel/types';
+import {
+  TopLevelDeclaration,
+  ExportMap,
+  ReexportImportSpec,
+} from '../../../types';
 import { pushToExportMap } from '../utils/pushToExportMap';
 import { getTopLevelDependencies } from '../utils/getTopLevelDependencies';
 

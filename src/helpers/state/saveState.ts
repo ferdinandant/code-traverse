@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { encoderDecoderMap } from './encoderDecoder';
+import { State } from '../../types';
 
 const replacer = (_key: string, value: any) => {
   if (value && typeof value === 'object') {

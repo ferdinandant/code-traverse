@@ -1,3 +1,4 @@
+import { State } from '../../../types';
 import { getFileChildren } from '../utils/getFileChildren';
 
 type Opts = {

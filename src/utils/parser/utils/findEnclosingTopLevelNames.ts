@@ -1,4 +1,5 @@
 import { SourceLocation } from '@babel/types';
+import { TopLevelDeclaration } from '../../../types';
 
 type Opts = {
   topLevelDeclarations: TopLevelDeclaration;
